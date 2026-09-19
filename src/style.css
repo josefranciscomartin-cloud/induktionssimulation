@@ -171,6 +171,23 @@ body {
   gap: 20px;
 }
 
+.site-footer {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding: 4px 20px 28px;
+  color: #455a64;
+}
+
+.site-footer a {
+  color: #174b70;
+}
+
+.site-footer a:focus-visible {
+  outline: 3px solid #2563eb;
+  outline-offset: 3px;
+}
+
 .card {
   min-width: 0;
   background: white;

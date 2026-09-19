@@ -6,7 +6,7 @@ document.querySelector('#app').innerHTML = `
   <div class="app">
     <header class="header">
       <h1>Induktionssimulation von J.M. und M.K.</h1>
-      <p>Simulation elektromagnetischer Induktion</p>
+      <p>Simulation elektromagnetischer Induktion bei einer Feldspule und einer Induktionsspule</p>
     </header>
 
     <main class="main">
@@ -337,6 +337,11 @@ document.querySelector('#app').innerHTML = `
       <section id="quizPanel" class="card" role="tabpanel" aria-labelledby="tab-quiz" hidden></section>
       <section id="dataPanel" class="card" role="tabpanel" aria-labelledby="tab-data" hidden></section>
     </main>
+    <footer class="site-footer">
+      <a href="./rechtliches.html#impressum">Impressum</a>
+      <span aria-hidden="true">·</span>
+      <a href="./rechtliches.html#datenschutz">Datenschutz</a>
+    </footer>
   </div>
 `
 const chartCanvas = document.querySelector('#voltageChart')

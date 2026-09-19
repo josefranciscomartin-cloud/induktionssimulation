@@ -13,6 +13,8 @@ Sinus-, Dreieck- und Rechteckstrom sowie einem Chart.js-Diagramm.
 | `src/measurement-data.js` | Übungsdaten, Messstreuung, Einheitenprüfung und CSV-Export |
 | `src/style.css` | Gestaltung der Simulation |
 | `public/favicon.svg` | Seitensymbol |
+| `public/rechtliches.html` | Impressum und Datenschutzerklärung |
+| `public/rechtliches.css` | Gestaltung der Rechteseite |
 | `package.json`, `package-lock.json` | Vite, Chart.js und reproduzierbare Installation |
 | `vite.config.js` | Basis-Pfad `/induktionssimulation/` |
 | `.nvmrc` | Node.js-Version für lokale Arbeit und GitHub Actions |
@@ -29,6 +31,11 @@ Vorlagendateien. `einstellungen.odt` und die zugehörige Office-Sperrdatei gehö
 nicht zur Browser-Simulation. Sie werden nicht benötigt und wurden nicht gelöscht.
 Vite kopiert den gesamten Inhalt von `public/`, also auch `icons.svg`, nach `dist/`.
 Veröffentlicht wird ausschließlich `dist/`, nicht der Projektordner.
+
+Vor einer Veröffentlichung müssen in `public/rechtliches.html` die deutlich
+markierten Platzhalter für Name, ladungsfähige Anschrift und E-Mail-Adresse des
+privaten Betreibers ersetzt werden. Die Links zu Impressum und Datenschutz sind
+im Fußbereich der Simulation auf allen drei Lernreitern erreichbar.
 
 ## Lokal starten und bauen
 
