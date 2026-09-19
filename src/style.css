@@ -43,15 +43,63 @@ body {
   box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
 }
 
+.coil-settings {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 32px;
+}
+
+.coil-settings-column {
+  min-width: 0;
+}
+
+@media (max-width: 760px) {
+  .coil-settings {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+}
+
+.model-formulas {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+
+.model-formula {
+  min-width: 0;
+  padding: 16px;
+  background: #f4f6f8;
+  border-radius: 8px;
+}
+
+.model-formula > span {
+  font-size: 0.9rem;
+  color: #455a64;
+}
+
+.model-formula math {
+  margin: 16px 0 4px;
+  padding: 4px 0;
+  font-size: 1.25rem;
+  overflow-x: auto;
+}
+
 label {
   display: block;
   margin: 15px 0;
 }
 
-input {
+input[type="number"] {
   width: 100px;
   padding: 7px;
   margin-left: 10px;
+}
+
+select {
+  padding: 7px;
+  margin-left: 10px;
+  font: inherit;
 }
 
 button {
@@ -74,52 +122,156 @@ button {
   border-radius: 8px;
 }
 
-.source {
-  fill: #eeeeee;
-  stroke: #333;
-  stroke-width: 3;
+.device-face {
+  fill: #fff;
+  stroke: #475569;
+  stroke-width: 2;
 }
 
-.wire {
-  stroke: #333;
-  stroke-width: 4;
+.device-top {
+  fill: #f1f5f9;
+  stroke: #475569;
+  stroke-width: 2;
+}
+
+.device-side {
+  fill: #e2e8f0;
+  stroke: #475569;
+  stroke-width: 2;
+}
+
+.device-heading {
+  fill: #e2e8f0;
+}
+
+.digital-display {
+  fill: #dcf5ce;
+}
+
+.voltage-display,
+.waveform-display {
+  fill: #e8edff;
+}
+
+.wire,
+.induction-wire {
+  fill: none;
+  stroke: #292d32;
+  stroke-width: 3;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.induction-wire {
+  stroke: #3155d9;
+  stroke-width: 2.5;
 }
 
 .coil-turn {
   fill: none;
-  stroke: #b36b00;
-  stroke-width: 5;
+  stroke: #292d32;
+  stroke-width: 2.5;
 }
 
-.core {
-  fill: #777;
-  stroke: #444;
-  stroke-width: 2;
-}
-
-.meter {
-  fill: #f7f7f7;
-  stroke: #333;
+#inductionCoil .coil-turn,
+.secondary-coil .coil-turn {
+  stroke: #3155d9;
   stroke-width: 3;
 }
 
-.field-line {
-  stroke: #555;
-  stroke-width: 4;
-  stroke-dasharray: 8 6;
+.secondary-panel {
+  fill: #fffaf5;
+  stroke: #e4c8aa;
+  stroke-width: 1.5;
+}
+
+.load-resistor {
+  fill: white;
+  stroke: #3155d9;
+  stroke-width: 2;
+}
+
+.secondary-field-line {
+  fill: none;
+  stroke: #c35d12;
+  stroke-width: 2.5;
+}
+
+.secondary-field-arrow {
+  fill: #c35d12;
+}
+
+.terminal {
+  fill: #292d32;
+}
+
+.induction-terminal {
+  fill: #3155d9;
+}
+
+.field-line,
+.field-direction {
+  fill: none;
+  stroke: #16804a;
+  stroke-width: 2.5;
+  marker-end: url(#fieldArrowhead);
+}
+
+.field-direction {
+  stroke-width: 3;
+  marker-end: none;
 }
 
 .field-arrow {
-  fill: #555;
+  fill: #16804a;
+}
+
+.field-caption {
+  fill: #16804a;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.magnetic-pole {
+  font-size: 25px;
+  font-weight: bold;
+}
+
+.field-explanation {
+  color: #455a64;
+  line-height: 1.5;
 }
 
 .svg-title {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: bold;
 }
 
 .svg-value {
+  font-size: 20px;
+}
+
+.svg-label {
   font-size: 18px;
+}
+
+.coil-parameters {
+  font-size: 16px;
+}
+
+.digital-value {
+  font-size: 26px;
+  font-weight: bold;
+  font-variant-numeric: tabular-nums;
+}
+
+.meter-value {
+  font-size: 17px;
+  font-variant-numeric: tabular-nums;
+}
+
+.induction-text {
+  fill: #3155d9;
 }
 
 #diagramme {
