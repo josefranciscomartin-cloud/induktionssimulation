@@ -1,4 +1,4 @@
-# Induktionssimulation
+# Induktionssimulation von J.M. und M.K.
 
 Browser-Simulation elektromagnetischer Induktion mit SVG-Versuchsaufbau,
 Sinus-, Dreieck- und Rechteckstrom sowie einem Chart.js-Diagramm.
@@ -9,6 +9,8 @@ Sinus-, Dreieck- und Rechteckstrom sowie einem Chart.js-Diagramm.
 | --- | --- |
 | `index.html` | Einstiegspunkt für Vite und die HTML-Seite |
 | `src/main.js` | Oberfläche, SVG, Berechnungen und Diagramm |
+| `src/learning.js` | Lernreiter, Quiz, Messwerttabelle und Selbsttest |
+| `src/measurement-data.js` | Übungsdaten, Messstreuung, Einheitenprüfung und CSV-Export |
 | `src/style.css` | Gestaltung der Simulation |
 | `public/favicon.svg` | Seitensymbol |
 | `package.json`, `package-lock.json` | Vite, Chart.js und reproduzierbare Installation |
@@ -102,7 +104,7 @@ Vorbereitung nicht ausgeführt.
 
 ```bash
 git add .gitignore .nvmrc README.md vite.config.js .github/workflows/deploy-pages.yml
-git add index.html package.json package-lock.json src/main.js src/style.css public/favicon.svg
+git add index.html package.json package-lock.json src/main.js src/style.css src/learning.js src/measurement-data.js public/favicon.svg
 git commit -m "Induktionssimulation für GitHub Pages vorbereiten"
 git remote add origin https://github.com/DEIN-GITHUB-NAME/induktionssimulation.git
 git push -u origin HEAD:main

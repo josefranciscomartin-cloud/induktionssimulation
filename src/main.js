@@ -1,14 +1,21 @@
 import './style.css'
 import Chart from 'chart.js/auto'
+import { mountLearning } from './learning.js'
 
 document.querySelector('#app').innerHTML = `
   <div class="app">
     <header class="header">
-      <h1>Induktionssimulation</h1>
+      <h1>Induktionssimulation von J.M. und M.K.</h1>
       <p>Simulation elektromagnetischer Induktion</p>
     </header>
 
     <main class="main">
+      <nav class="learning-tabs" role="tablist" aria-label="Lernbereiche">
+        <button id="tab-experiment" role="tab" aria-selected="true" aria-controls="experimentPanel">Versuch</button>
+        <button id="tab-quiz" role="tab" aria-selected="false" aria-controls="quizPanel" tabindex="-1">Quiz</button>
+        <button id="tab-data" role="tab" aria-selected="false" aria-controls="dataPanel" tabindex="-1">Messdaten &amp; Selbsttest</button>
+      </nav>
+      <div id="experimentPanel" class="tab-panel" role="tabpanel" aria-labelledby="tab-experiment">
       <section class="card">
         <h2>Einstellungen</h2>
 
@@ -219,6 +226,23 @@ document.querySelector('#app').innerHTML = `
 
       <section class="card">
         <h2>Diagramme</h2>
+        <button id="inspectSlope" aria-expanded="false" aria-controls="slopeInspection">Steigung untersuchen</button>
+        <div id="slopeInspection" class="slope-inspection" hidden>
+          <p><strong>Simulation pausiert · ansteigender Stromabschnitt</strong></p>
+          <p id="slopeInterval"></p>
+          <label>
+            Zeitpunkt im markierten Abschnitt:
+            <input id="slopePosition" type="range" min="1" max="99" value="50">
+          </label>
+          <p id="slopeValues" role="status" aria-live="polite"></p>
+          <p id="slopeConclusion"></p>
+          <p>Es gilt U_ind = −N₂ · A_eff · (μ₀ · N₁ / l) · dI/dt.
+            Das Minuszeichen der Lenzschen Regel kehrt das Vorzeichen der Ableitung um.
+            Die Punkte auf beiden Kurven gehören zum selben Zeitpunkt.
+            Die orange Tangente zeigt die lokale Stromsteigung; die Spannungen werden links in V,
+            der Strom rechts in A abgelesen.</p>
+          <button id="resumeInspection">Simulation fortsetzen</button>
+        </div>
         <label>
           <input id="showSourceVoltage" type="checkbox" checked>
           Quellspannung anzeigen
@@ -309,14 +333,73 @@ document.querySelector('#app').innerHTML = `
           Die Quellspannung wird ohne Wicklungswiderstand und ohne Rückwirkung des Induktionsstroms berechnet.
           Die SVG-Zeichnung ist schematisch.</p>
       </section>
+      </div>
+      <section id="quizPanel" class="card" role="tabpanel" aria-labelledby="tab-quiz" hidden></section>
+      <section id="dataPanel" class="card" role="tabpanel" aria-labelledby="tab-data" hidden></section>
     </main>
   </div>
 `
 const chartCanvas = document.querySelector('#voltageChart')
 const showSourceVoltage = document.querySelector('#showSourceVoltage')
+let slopeInspection = null
+
+const slopeOverlay = {
+  id: 'slopeInspection',
+  beforeDatasetsDraw(chart) {
+    if (!slopeInspection) return
+    const { ctx, chartArea, scales } = chart
+    const left = scales.x.getPixelForValue(0)
+    const right = scales.x.getPixelForValue(slopeInspection.intervalEnd)
+    const zero = scales.y.getPixelForValue(0)
+    ctx.save()
+    ctx.fillStyle = 'rgba(245, 158, 11, 0.10)'
+    ctx.fillRect(left, chartArea.top, right - left, chartArea.bottom - chartArea.top)
+    ctx.fillStyle = 'rgba(220, 38, 38, 0.08)'
+    ctx.fillRect(left, zero, right - left, chartArea.bottom - zero)
+    ctx.restore()
+  },
+  afterDatasetsDraw(chart) {
+    if (!slopeInspection) return
+    const { time, sample, derivative, intervalEnd } = slopeInspection
+    const { ctx, chartArea, scales } = chart
+    const x = scales.x.getPixelForValue(time)
+    ctx.save()
+    ctx.beginPath()
+    ctx.rect(chartArea.left, chartArea.top, chartArea.right - chartArea.left, chartArea.bottom - chartArea.top)
+    ctx.clip()
+    ctx.strokeStyle = '#64748b'
+    ctx.setLineDash([4, 4])
+    ctx.beginPath()
+    ctx.moveTo(x, chartArea.top)
+    ctx.lineTo(x, chartArea.bottom)
+    ctx.stroke()
+    ctx.setLineDash([])
+    if (chart.isDatasetVisible(2)) {
+      const halfWidth = intervalEnd * 0.15
+      ctx.strokeStyle = '#b45309'
+      ctx.lineWidth = 3
+      ctx.beginPath()
+      ctx.moveTo(scales.x.getPixelForValue(time - halfWidth), scales.current.getPixelForValue(sample.fieldCurrent - derivative * halfWidth))
+      ctx.lineTo(scales.x.getPixelForValue(time + halfWidth), scales.current.getPixelForValue(sample.fieldCurrent + derivative * halfWidth))
+      ctx.stroke()
+    }
+    for (const [index, value, axis, color] of [[2, sample.fieldCurrent, 'current', '#b45309'], [1, sample.inducedVoltage, 'y', '#dc2626']]) {
+      if (!chart.isDatasetVisible(index)) continue
+      ctx.beginPath()
+      ctx.arc(x, scales[axis].getPixelForValue(value), 6, 0, 2 * Math.PI)
+      ctx.fillStyle = color
+      ctx.fill()
+      ctx.strokeStyle = '#fff'
+      ctx.lineWidth = 2
+      ctx.stroke()
+    }
+    ctx.restore()
+  }
+}
 
 const voltageChart = new Chart(chartCanvas, {
   type: 'line',
+  plugins: [slopeOverlay],
 
   data: {
     labels: [],
@@ -354,6 +437,7 @@ const voltageChart = new Chart(chartCanvas, {
     responsive: true,
     maintainAspectRatio: false,
     animation: false,
+    interaction: { mode: 'index', intersect: false },
 
     plugins: {
       legend: {
@@ -369,7 +453,18 @@ const voltageChart = new Chart(chartCanvas, {
         callbacks: {
           label(context) {
             const unit = context.dataset.yAxisID === 'current' ? 'A' : 'V'
-            return `${context.dataset.label}: ${context.formattedValue} ${unit}`
+            return `${context.dataset.label}: ${context.parsed.y.toPrecision(4)} ${unit}`
+          },
+          footer(items) {
+            if (!slopeInspection || !items.length) return ''
+            const { frequency, waveform, field } = slopeInspection
+            const phase = ((items[0].parsed.x * frequency) % 1 + 1) % 1
+            const corners = waveform === 'triangle' ? [0.25, 0.75] : waveform === 'square' ? [0.025, 0.475, 0.525, 0.975] : []
+            if (corners.some(corner => Math.abs(phase - corner) < 1e-9)) {
+              return 'Am Knick ist die momentane Ableitung nicht definiert.'
+            }
+            const rate = field.currentAmplitude * evaluateWaveform(items[0].parsed.x, frequency, waveform).derivative
+            return `Stromsteigung dI/dt: ${rate.toPrecision(4)} A/s`
           }
         }
       }
@@ -449,7 +544,7 @@ const startButton = document.querySelector('#startButton')
 const sourceVoltageText = document.querySelector('#sourceVoltage')
 const inducedVoltageText = document.querySelector('#inducedVoltage')
 const magneticField = document.querySelector('#magneticField')
-const parameterInputs = document.querySelectorAll('.card input[type="number"]')
+const parameterInputs = document.querySelectorAll('#experimentPanel input[type="number"]')
 const waveformSelect = document.querySelector('#stromverlauf')
 const secondaryClosed = document.querySelector('#secondaryClosed')
 const loadResistance = document.querySelector('#lastwiderstand')
@@ -593,6 +688,13 @@ function updateCoilLabels() {
     [...parameterInputs].every(input => input.validity.valid)
       ? getFieldParameters().amplitude.toPrecision(4)
       : '—'
+  if (slopeInspection) {
+    if ([...parameterInputs].every(input => input.validity.valid)) inspectSlope()
+    else {
+      clearSlopeInspection()
+      voltageChart.update()
+    }
+  }
 }
 
 parameterInputs.forEach(input => input.addEventListener('input', updateCoilLabels))
@@ -607,7 +709,91 @@ function validateParameters() {
   return true
 }
 
+document.querySelector('#inspectSlope').addEventListener('click', inspectSlope)
+document.querySelector('#slopePosition').addEventListener('input', selectSlopePoint)
+document.querySelector('#resumeInspection').addEventListener('click', resumeInspection)
+
+function clearSlopeInspection() {
+  slopeInspection = null
+  if (!running) startButton.textContent = 'Simulation starten'
+  document.querySelector('#slopeInspection').hidden = true
+  document.querySelector('#inspectSlope').setAttribute('aria-expanded', 'false')
+}
+
+function inspectSlope() {
+  if (!validateParameters()) return
+  stopSimulation()
+  resetChart()
+  const frequency = Number(document.querySelector('#frequenz').value)
+  const turns = Number(document.querySelector('#windungszahl').value)
+  const area = Number(document.querySelector('#spulenflaeche').value)
+  const waveform = waveformSelect.value
+  const field = getFieldParameters()
+  const intervalEnd = (waveform === 'square' ? 0.025 : 0.25) / frequency
+  const windowEnd = (waveform === 'square' ? 0.1 : 0.5) / frequency
+  const sampleAt = time => calculateValues(time, frequency, waveform, field, turns, area)
+  slopeInspection = { frequency, waveform, field, intervalEnd, sampleAt }
+  for (let i = 0; i <= 400; i++) {
+    const time = windowEnd * i / 400
+    const sample = sampleAt(time)
+    voltageChart.data.labels.push(time)
+    voltageChart.data.datasets[0].data.push(sample.sourceVoltage)
+    voltageChart.data.datasets[1].data.push(sample.inducedVoltage)
+    voltageChart.data.datasets[2].data.push(sample.fieldCurrent)
+  }
+  voltageChart.setDatasetVisibility(1, true)
+  voltageChart.setDatasetVisibility(2, true)
+  document.querySelector('#slopeInspection').hidden = false
+  document.querySelector('#inspectSlope').setAttribute('aria-expanded', 'true')
+  document.querySelector('#slopeInterval').textContent =
+    `Beispiel mit den aktuellen Einstellungen: von I = 0 bis I_max im markierten Zeitfenster 0–${intervalEnd.toPrecision(4)} s.` +
+    (waveform === 'square' ? ' Beim Rechteck betrachten wir die modellierte lineare Anstiegsflanke.' : '')
+  startButton.textContent = 'Simulation fortsetzen'
+  selectSlopePoint()
+}
+
+function selectSlopePoint() {
+  if (!slopeInspection) return
+  const { intervalEnd, frequency, waveform, field, sampleAt } = slopeInspection
+  const time = intervalEnd * Number(document.querySelector('#slopePosition').value) / 100
+  const sample = sampleAt(time)
+  const derivative = field.currentAmplitude * evaluateWaveform(time, frequency, waveform).derivative
+  Object.assign(slopeInspection, { time, sample, derivative })
+  document.querySelector('#slopeValues').textContent =
+    `t = ${time.toPrecision(4)} s · I = ${sample.fieldCurrent.toPrecision(4)} A · dI/dt = ${derivative.toPrecision(4)} A/s · U_ind = ${formatVoltage(sample.inducedVoltage)}`
+  document.querySelector('#slopeConclusion').textContent = derivative === 0
+    ? 'Ohne Stromamplitude ist die Steigung null und es entsteht keine Induktionsspannung.'
+    : sample.inducedVoltage === 0
+      ? 'Die Stromsteigung ist positiv. Bei wirksamer Spulenfläche null bleibt die Induktionsspannung jedoch null.'
+      : 'Die Stromsteigung ist positiv, die Induktionsspannung negativ: Ihr roter Punkt liegt unterhalb der Zeitachse (U = 0). U_ind ist die negative, mit dem Spulenfaktor multiplizierte Ableitung des Stroms.'
+  showSimulationSample(sample, field)
+  voltageChart.update()
+}
+
+
+function resumeInspection() {
+  if (!slopeInspection || !validateParameters()) return
+  const { time, frequency } = slopeInspection
+  // Nur schon erreichte Messpunkte behalten; vom gewählten Zeitpunkt weiterlaufen.
+  const count = voltageChart.data.labels.filter(t => t <= time).length
+  voltageChart.data.labels.length = count
+  voltageChart.data.datasets.forEach(dataset => { dataset.data.length = count })
+  clearSlopeInspection()
+  nextChartTime = time + Math.min(0.05, 1 / (frequency * 200))
+  lastChartUpdate = time
+  startTime = performance.now() - time * 1000
+  running = true
+  startButton.textContent = 'Simulation stoppen'
+  updateGenerator()
+  voltageChart.update()
+  animationId = requestAnimationFrame(animate)
+}
+
 startButton.addEventListener('click', () => {
+  if (slopeInspection) {
+    resumeInspection()
+    return
+  }
   if (!running) {
     startSimulation()
   } else {
@@ -657,13 +843,18 @@ function animate(currentTime) {
   const turns = Number(document.querySelector('#windungszahl').value)
   const area = Number(document.querySelector('#spulenflaeche').value)
   const field = getFieldParameters()
-  const fieldAmplitude = field.amplitude
   const waveform = waveformSelect.value
 
   const elapsedSeconds = (currentTime - startTime) / 1000
 
   const sampleAt = time => calculateValues(time, frequenz, waveform, field, turns, area)
-  const { magneticFieldValue, sourceVoltage, inducedVoltage, fieldCurrent } = sampleAt(elapsedSeconds)
+  showSimulationSample(sampleAt(elapsedSeconds), field)
+  updateChart(elapsedSeconds, frequenz, sampleAt)
+  animationId = requestAnimationFrame(animate)
+}
+
+function showSimulationSample(sample, field) {
+  const { magneticFieldValue, sourceVoltage, inducedVoltage, fieldCurrent } = sample
   lastSecondarySample = { inducedVoltage }
   updateSecondaryField(lastSecondarySample)
 
@@ -675,11 +866,7 @@ function animate(currentTime) {
 
   document.querySelector('#fieldCurrent').textContent = `${fieldCurrent.toFixed(3)} A`
 
-  updateMagneticField(fieldAmplitude > 0 && field.area > 0 ? magneticFieldValue / fieldAmplitude : 0)
-  
-  updateChart(elapsedSeconds, frequenz, sampleAt)
-
-  animationId = requestAnimationFrame(animate)
+  updateMagneticField(field.amplitude > 0 && field.area > 0 ? magneticFieldValue / field.amplitude : 0)
 }
 
 function updateMagneticField(value) {
@@ -702,6 +889,7 @@ let nextChartTime = 0
 const maxChartPoints = 2000
 
 function resetChart() {
+  clearSlopeInspection()
   lastChartUpdate = -Infinity
   nextChartTime = 0
   voltageChart.data.labels.length = 0
@@ -739,3 +927,8 @@ function updateChart(time, frequency, sampleAt) {
 
   voltageChart.update()
 }
+
+mountLearning({
+  onLeaveExperiment() { if (running) stopSimulation() },
+  onReturnExperiment() { voltageChart.resize() }
+})
