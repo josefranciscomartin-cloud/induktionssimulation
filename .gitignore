@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local environment and temporary office files
+.env
+.env.*
+!.env.example
+.~lock.*#
+~$*
