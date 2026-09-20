@@ -263,6 +263,12 @@ button {
   cursor: pointer;
 }
 
+.diagram-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 #simulation {
   width: 100%;
   overflow-x: auto;
@@ -348,7 +354,7 @@ button {
 .secondary-field-line {
   fill: none;
   stroke: #c35d12;
-  stroke-width: 2.5;
+  stroke-width: var(--secondary-field-width, 2.5px);
 }
 
 .secondary-field-arrow {
@@ -367,7 +373,7 @@ button {
 .field-direction {
   fill: none;
   stroke: #16804a;
-  stroke-width: 2.5;
+  stroke-width: var(--field-width, 2.5px);
   marker-end: url(#fieldArrowhead);
 }
 
@@ -407,6 +413,31 @@ button {
 
 .svg-label {
   font-size: 18px;
+}
+
+.generator-status {
+  font-size: 15px;
+  fill: #475569;
+}
+
+.signal-bar-track {
+  fill: #e2e8f0;
+  stroke: #94a3b8;
+  stroke-width: 1;
+}
+
+.signal-bar-fill {
+  transition: fill 120ms linear;
+}
+
+.signal-bar-zero {
+  stroke: #334155;
+  stroke-width: 1.5;
+}
+
+.signal-bar-scale {
+  fill: #64748b;
+  font-size: 13px;
 }
 
 .coil-parameters {

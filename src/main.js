@@ -21,7 +21,7 @@ document.querySelector('#app').innerHTML = `
 
         <label>
           Frequenz:
-          <input id="frequenz" type="number" value="1" min="0.1" step="0.1" required>
+          <input id="frequenz" type="number" value="0.4" min="0.1" step="0.1" required>
           Hz
         </label>
 
@@ -141,17 +141,31 @@ document.querySelector('#app').innerHTML = `
             <text x="770" y="126" text-anchor="middle" class="svg-title">Funktionsgenerator</text>
             <text x="645" y="177" class="svg-label">Frequenz f</text>
             <rect x="645" y="189" width="250" height="42" rx="4" class="digital-display"/>
-            <text id="generatorFrequency" x="878" y="218" text-anchor="end" class="digital-value">1 Hz</text>
+            <text id="generatorFrequency" x="878" y="218" text-anchor="end" class="digital-value">0.4 Hz</text>
             <text x="645" y="260" class="svg-label">Stromamplitude Iₘₐₓ</text>
             <rect x="645" y="272" width="250" height="42" rx="4" class="digital-display"/>
             <text id="generatorAmplitude" x="878" y="301" text-anchor="end" class="digital-value">0.1 A</text>
             <text x="645" y="345" class="svg-label">Stromverlauf</text>
             <rect x="645" y="357" width="250" height="38" rx="4" class="waveform-display"/>
             <text id="generatorWaveform" x="770" y="382" text-anchor="middle" class="svg-value">Sinus</text>
-            <text x="655" y="426" class="svg-label">U(t)</text>
-            <text id="sourceVoltage" x="878" y="426" text-anchor="end" class="svg-value">0.00 V</text>
-            <circle id="generatorStatusLight" cx="660" cy="480" r="7" fill="#94a3b8"/>
-            <text id="generatorStatus" x="680" y="486" class="svg-label">Aus</text>
+            <circle id="generatorStatusLight" cx="800" cy="160" r="7" fill="#94a3b8"/>
+            <text id="generatorStatus" x="816" y="166" class="generator-status">Aus</text>
+            <text x="645" y="420" class="svg-label">Spannung U(t)</text>
+            <text id="sourceVoltage" x="895" y="420" text-anchor="end" class="svg-value">0.00 V</text>
+            <rect x="645" y="428" width="250" height="12" rx="6" class="signal-bar-track"/>
+            <rect id="generatorVoltageBar" x="770" y="428" width="0" height="12" rx="6" class="signal-bar-fill"/>
+            <line x1="770" y1="426" x2="770" y2="442" class="signal-bar-zero"/>
+            <text x="645" y="453" class="signal-bar-scale">−</text>
+            <text x="770" y="453" text-anchor="middle" class="signal-bar-scale">0</text>
+            <text x="895" y="453" text-anchor="end" class="signal-bar-scale">+</text>
+            <text x="645" y="470" class="svg-label">Strom I(t)</text>
+            <text id="generatorCurrent" x="895" y="470" text-anchor="end" class="svg-value">0.000 A</text>
+            <rect x="645" y="478" width="250" height="12" rx="6" class="signal-bar-track"/>
+            <rect id="generatorCurrentBar" x="770" y="478" width="0" height="12" rx="6" class="signal-bar-fill"/>
+            <line x1="770" y1="476" x2="770" y2="492" class="signal-bar-zero"/>
+            <text x="645" y="505" class="signal-bar-scale">−</text>
+            <text x="770" y="505" text-anchor="middle" class="signal-bar-scale">0</text>
+            <text x="895" y="505" text-anchor="end" class="signal-bar-scale">+</text>
 
             <!-- Feldspulenstromkreis: Generator → Spule → Strommessung → Generator -->
             <path d="M430 260 V320 H570 V420 H620" class="wire"/>
@@ -217,16 +231,21 @@ document.querySelector('#app').innerHTML = `
         <p class="field-explanation">Die grünen Linien zeigen Ausschnitte des B-Felds an den Spulenenden.
           Im Inneren verläuft es von S nach N; außen schließen sich die Feldlinien von N nach S.
           Die Mitte und die äußeren Rückwege sind zur Übersicht ausgespart.
+          Mit wachsendem Betrag von B werden die Linien dunkler und breiter.
           Bei umgekehrtem Strom tauschen Nord- und Südpol die Seiten; bei I = 0 verschwindet das Feld.</p>
         <p class="field-explanation">Die separate Ansicht darüber zeigt dieselbe Induktionsspule
           mit ihrem eigenen, orange dargestellten B-Feld. Dieses entsteht nur bei geschlossenem Stromkreis
           durch den Induktionsstrom und wirkt der Änderung des Feldspulenfelds entgegen (Lenzsche Regel).
+          Auch hier zeigen Farbintensität und Linienbreite den momentanen Betrag an.
           Bei abnehmendem Feld können beide Felder in dieselbe Richtung zeigen.</p>
       </section>
 
       <section class="card">
         <h2>Diagramme</h2>
-        <button id="inspectSlope" aria-expanded="false" aria-controls="slopeInspection">Steigung untersuchen</button>
+        <div class="diagram-actions">
+          <button id="diagramStartButton">Simulation starten</button>
+          <button id="inspectSlope" aria-expanded="false" aria-controls="slopeInspection">Steigung untersuchen</button>
+        </div>
         <div id="slopeInspection" class="slope-inspection" hidden>
           <p><strong>Simulation pausiert · ansteigender Stromabschnitt</strong></p>
           <p id="slopeInterval"></p>
@@ -546,7 +565,10 @@ let startTime = null
 let running = false
 
 const startButton = document.querySelector('#startButton')
+const diagramStartButton = document.querySelector('#diagramStartButton')
+const startButtons = [startButton, diagramStartButton]
 const sourceVoltageText = document.querySelector('#sourceVoltage')
+const generatorCurrentText = document.querySelector('#generatorCurrent')
 const inducedVoltageText = document.querySelector('#inducedVoltage')
 const magneticField = document.querySelector('#magneticField')
 const parameterInputs = document.querySelectorAll('#experimentPanel input[type="number"]')
@@ -564,6 +586,16 @@ function calculateSecondaryCurrent(inducedVoltage, resistance, closed) {
   return closed && Number.isFinite(resistance) && resistance > 0 ? inducedVoltage / resistance : 0
 }
 
+function getSecondaryCurrentLimit(resistance) {
+  const frequency = Number(document.querySelector('#frequenz').value)
+  const turns = Number(document.querySelector('#windungszahl').value)
+  const area = Number(document.querySelector('#spulenflaeche').value)
+  const field = getFieldParameters()
+  const voltageLimit = turns * Math.min(field.area, area) * field.amplitude *
+    getWaveformDerivativeLimit(frequency, waveformSelect.value)
+  return Number.isFinite(voltageLimit / resistance) ? Math.abs(voltageLimit / resistance) : 0
+}
+
 function updateSecondaryField(sample) {
   const closed = secondaryClosed.checked
   const valid = loadResistance.validity.valid
@@ -571,7 +603,9 @@ function updateSecondaryField(sample) {
   const secondaryCurrent = sample && valid
     ? calculateSecondaryCurrent(sample.inducedVoltage, resistance, closed)
     : 0
-  const hasField = Math.abs(secondaryCurrent) > 1e-12
+  const currentLimit = getSecondaryCurrentLimit(resistance)
+  const strength = currentLimit > 0 ? Math.min(Math.abs(secondaryCurrent) / currentLimit, 1) : 0
+  const hasField = strength > 1e-4
   document.querySelector('#secondarySwitch').setAttribute('d', closed ? 'M360 195 H405' : 'M360 195 L400 177')
   document.querySelector('#secondaryCircuitState').textContent = closed
     ? `Stromkreis geschlossen · R = ${loadResistance.value} Ω`
@@ -579,11 +613,13 @@ function updateSecondaryField(sample) {
   const currentUnit = Math.abs(secondaryCurrent) >= 0.001 ? 'mA' : 'µA'
   const currentScale = currentUnit === 'mA' ? 1000 : 1e6
   document.querySelector('#secondaryCurrent').textContent = `I₂ = ${(secondaryCurrent * currentScale).toFixed(2)} ${currentUnit}`
-  document.querySelector('#secondaryMagneticField').style.visibility = hasField ? 'visible' : 'hidden'
-  document.querySelector('#secondaryFieldLines').setAttribute('transform',
+  const secondaryMagneticField = document.querySelector('#secondaryMagneticField')
+  const secondaryFieldLines = document.querySelector('#secondaryFieldLines')
+  secondaryMagneticField.style.visibility = hasField ? 'visible' : 'hidden'
+  secondaryFieldLines.style.opacity = 0.08 + 0.92 * Math.pow(strength, 0.75)
+  secondaryFieldLines.setAttribute('transform',
     secondaryCurrent >= 0 ? 'translate(0 0)' : 'translate(520 0) scale(-1 1)')
-  document.querySelector('#secondaryFieldLines').style.opacity =
-    0.3 + 0.7 * Math.min(Math.abs(secondaryCurrent) / 1e-5, 1)
+  secondaryFieldLines.style.setProperty('--secondary-field-width', `${1.2 + 2.8 * strength}px`)
   const left = document.querySelector('#secondaryLeftPole')
   const right = document.querySelector('#secondaryRightPole')
   left.textContent = secondaryCurrent >= 0 ? 'S' : 'N'
@@ -607,6 +643,27 @@ function updateGenerator() {
   document.querySelector('#generatorStatusLight').setAttribute('fill', running ? '#16a34a' : '#94a3b8')
 }
 
+function updateSignedBar(id, ratio) {
+  const bar = document.querySelector(`#${id}`)
+  const normalized = Number.isFinite(ratio) ? Math.max(-1, Math.min(1, ratio)) : 0
+  const width = Math.abs(normalized) * 125
+  bar.setAttribute('x', normalized < 0 ? 770 - width : 770)
+  bar.setAttribute('width', width)
+  bar.setAttribute('fill', normalized < 0 ? '#c2410c' : '#16804a')
+}
+
+function updateGeneratorSignals(sourceVoltage, fieldCurrent, field) {
+  const frequency = Number(document.querySelector('#frequenz').value)
+  const voltageLimit = field
+    ? Math.abs(field.turns * field.area * field.amplitude *
+      getWaveformDerivativeLimit(frequency, waveformSelect.value))
+    : 0
+  sourceVoltageText.textContent = formatVoltage(sourceVoltage)
+  generatorCurrentText.textContent = `${fieldCurrent.toFixed(3)} A`
+  updateSignedBar('generatorVoltageBar', voltageLimit > 0 ? sourceVoltage / voltageLimit : 0)
+  updateSignedBar('generatorCurrentBar', field?.currentAmplitude > 0 ? fieldCurrent / field.currentAmplitude : 0)
+}
+
 function formatVoltage(value) {
   // Ohne Eisenkern liegen die Spannungen häufig im Millivoltbereich.
   if (value !== 0 && Math.abs(value) < 1) return `${(value * 1000).toFixed(2)} mV`
@@ -624,7 +681,7 @@ waveformSelect.addEventListener('change', () => {
   const wasRunning = running
   stopSimulation()
   resetChart()
-  sourceVoltageText.textContent = '0.00 V'
+  updateGeneratorSignals(0, 0, getFieldParameters())
   inducedVoltageText.textContent = '0.00 V'
   document.querySelector('#fieldCurrent').textContent = '0.00 A'
   magneticField.style.visibility = 'hidden'
@@ -651,6 +708,12 @@ function evaluateWaveform(time, frequency, waveform) {
   }
   const omega = 2 * Math.PI * frequency
   return { value: Math.sin(2 * Math.PI * phase), derivative: omega * Math.cos(2 * Math.PI * phase) }
+}
+
+function getWaveformDerivativeLimit(frequency, waveform) {
+  if (waveform === 'triangle') return 4 * frequency
+  if (waveform === 'square') return 40 * frequency
+  return 2 * Math.PI * frequency
 }
 
 function calculateValues(time, frequency, waveform, field, turns, area) {
@@ -720,7 +783,7 @@ document.querySelector('#resumeInspection').addEventListener('click', resumeInsp
 
 function clearSlopeInspection() {
   slopeInspection = null
-  if (!running) startButton.textContent = 'Simulation starten'
+  if (!running) setStartButtonText('Simulation starten')
   document.querySelector('#slopeInspection').hidden = true
   document.querySelector('#inspectSlope').setAttribute('aria-expanded', 'false')
 }
@@ -753,7 +816,7 @@ function inspectSlope() {
   document.querySelector('#slopeInterval').textContent =
     `Beispiel mit den aktuellen Einstellungen: von I = 0 bis I_max im markierten Zeitfenster 0–${intervalEnd.toPrecision(4)} s.` +
     (waveform === 'square' ? ' Beim Rechteck betrachten wir die modellierte lineare Anstiegsflanke.' : '')
-  startButton.textContent = 'Simulation fortsetzen'
+  setStartButtonText('Simulation fortsetzen')
   selectSlopePoint()
 }
 
@@ -788,13 +851,17 @@ function resumeInspection() {
   lastChartUpdate = time
   startTime = performance.now() - time * 1000
   running = true
-  startButton.textContent = 'Simulation stoppen'
+  setStartButtonText('Simulation stoppen')
   updateGenerator()
   voltageChart.update()
   animationId = requestAnimationFrame(animate)
 }
 
-startButton.addEventListener('click', () => {
+function setStartButtonText(text) {
+  startButtons.forEach(button => { button.textContent = text })
+}
+
+function toggleSimulation() {
   if (slopeInspection) {
     resumeInspection()
     return
@@ -804,7 +871,9 @@ startButton.addEventListener('click', () => {
   } else {
     stopSimulation()
   }
-})
+}
+
+startButtons.forEach(button => button.addEventListener('click', toggleSimulation))
 
 function startSimulation() {
   if (!validateParameters()) {
@@ -817,7 +886,7 @@ function startSimulation() {
   lastSecondarySample = null
   updateSecondaryField(null)
 
-  startButton.textContent = 'Simulation stoppen'
+  setStartButtonText('Simulation stoppen')
   updateGenerator()
 
   animationId = requestAnimationFrame(animate)
@@ -830,7 +899,7 @@ function stopSimulation() {
     cancelAnimationFrame(animationId)
   }
 
-  startButton.textContent = 'Simulation starten'
+  setStartButtonText('Simulation starten')
   updateGenerator()
 }
 
@@ -863,8 +932,7 @@ function showSimulationSample(sample, field) {
   lastSecondarySample = { inducedVoltage }
   updateSecondaryField(lastSecondarySample)
 
-  sourceVoltageText.textContent =
-    formatVoltage(sourceVoltage)
+  updateGeneratorSignals(sourceVoltage, fieldCurrent, field)
 
   inducedVoltageText.textContent =
     formatVoltage(inducedVoltage)
@@ -875,10 +943,12 @@ function showSimulationSample(sample, field) {
 }
 
 function updateMagneticField(value) {
-  const strength = Math.abs(value)
-  magneticField.style.visibility = strength > 1e-6 ? 'visible' : 'hidden'
-  document.querySelector('#magneticFieldLines').style.opacity = 0.3 + Math.min(strength, 1) * 0.7
-  document.querySelector('#magneticFieldLines').setAttribute(
+  const strength = Math.min(Math.abs(value), 1)
+  const magneticFieldLines = document.querySelector('#magneticFieldLines')
+  magneticField.style.visibility = strength > 1e-4 ? 'visible' : 'hidden'
+  magneticFieldLines.style.opacity = 0.08 + 0.92 * Math.pow(strength, 0.75)
+  magneticFieldLines.style.setProperty('--field-width', `${1.2 + 2.8 * strength}px`)
+  magneticFieldLines.setAttribute(
     'transform', value >= 0 ? 'translate(0 0)' : 'translate(530 0) scale(-1 1)'
   )
   const leftPole = document.querySelector('#leftMagneticPole')
