@@ -16,7 +16,7 @@ Sinus-, Dreieck- und Rechteckstrom sowie einem Chart.js-Diagramm.
 | `public/rechtliches.html` | Impressum und Datenschutzerklärung |
 | `public/rechtliches.css` | Gestaltung der Rechteseite |
 | `package.json`, `package-lock.json` | Vite, Chart.js und reproduzierbare Installation |
-| `vite.config.js` | Basis-Pfad `/induktionssimulation/` |
+| `vite.config.js` | Relative Basis-Pfade für LMS und GitHub Pages |
 | `.nvmrc` | Node.js-Version für lokale Arbeit und GitHub Actions |
 | `.github/workflows/deploy-pages.yml` | Manuell gestarteter Build und Pages-Deployment |
 | `dist/` | Generierte, veröffentlichbare Website; nicht in Git speichern |
@@ -32,10 +32,8 @@ nicht zur Browser-Simulation. Sie werden nicht benötigt und wurden nicht gelös
 Vite kopiert den gesamten Inhalt von `public/`, also auch `icons.svg`, nach `dist/`.
 Veröffentlicht wird ausschließlich `dist/`, nicht der Projektordner.
 
-Vor einer Veröffentlichung müssen in `public/rechtliches.html` die deutlich
-markierten Platzhalter für Name, ladungsfähige Anschrift und E-Mail-Adresse des
-privaten Betreibers ersetzt werden. Die Links zu Impressum und Datenschutz sind
-im Fußbereich der Simulation auf allen drei Lernreitern erreichbar.
+Die Betreiberangaben stehen in `public/rechtliches.html`. Die Links zu Impressum
+und Datenschutz sind im Fußbereich der Simulation auf allen drei Lernreitern erreichbar.
 
 ## Lokal starten und bauen
 
@@ -48,8 +46,8 @@ npm ci
 npm run dev
 ```
 
-Die vom Terminal angezeigte Adresse mit `/induktionssimulation/` öffnen
-(normalerweise `http://localhost:5173/induktionssimulation/`).
+Die vom Terminal angezeigte Adresse öffnen
+(normalerweise `http://localhost:5173/`).
 Node.js 18 ist mit der vorhandenen Vite-Version nicht kompatibel.
 
 Produktions-Build prüfen:
@@ -60,15 +58,15 @@ npm run preview
 ```
 
 Die Vorschau liegt normalerweise unter
-`http://localhost:4173/induktionssimulation/`. Falls der Port belegt ist, die
+`http://localhost:4173/`. Falls der Port belegt ist, die
 im Terminal angezeigte Adresse verwenden. Start/Stopp, alle drei Stromformen,
 Diagramm, Ausblenden der Quellspannung und Öffnen/Schließen des sekundären
 Stromkreises prüfen.
 
 `dist/index.html` ist der Einstiegspunkt der fertigen Website. HTML, JavaScript,
-CSS und Favicon werden mit dem Unterpfad `/induktionssimulation/` erzeugt.
-Die absoluten Quellpfade in der ursprünglichen `index.html` werden von Vite
-beim Build entsprechend umgeschrieben; sie müssen nicht manuell geändert werden.
+CSS und Favicon werden mit relativen Pfaden erzeugt. Dadurch kann der Inhalt von
+`dist/` in einen beliebigen Unterordner eines LMS kopiert und weiterhin unter
+`/induktionssimulation/` auf GitHub Pages bereitgestellt werden.
 Die Seite über HTTP aufrufen, nicht per Doppelklick über `file://`.
 
 ## Auf GitHub Pages veröffentlichen
@@ -126,9 +124,10 @@ nur den Repository-Inhalt; das Pages-Deployment bleibt ein separater manueller S
 
 ## Hinweise und Fehlerbehebung
 
-- **Leere Seite / fehlende Assets:** `base` in `vite.config.js` muss dem
-  Repository-Namen entsprechen. Bei einer Umbenennung ändern und neu bauen.
-  Für dieses Projekt lautet der Pfad `/induktionssimulation/`.
+- **Leere Seite / fehlende Assets:** Den vollständigen Inhalt von `dist/`
+  einschließlich des Verzeichnisses `assets/` hochladen und die Verzeichnisstruktur
+  beibehalten. Die erzeugten Verweise beginnen mit `./` und funktionieren dadurch
+  unabhängig vom Namen des Zielordners.
 - **Pages liefert 404:** Pages-Quelle und erfolgreichen `deploy`-Job prüfen.
   Den Unterpfad und den abschließenden Schrägstrich in der URL verwenden.
 - **Kein „Run workflow“:** Workflow im Standardbranch und aktivierte GitHub
