@@ -10,6 +10,14 @@ document.querySelector('#app').innerHTML = `
     </header>
 
     <main class="main">
+      <nav class="simulation-tabs" role="tablist" aria-label="Simulation auswählen">
+        <button id="tab-induction-simulation" role="tab" aria-selected="true"
+          aria-controls="inductionSimulationPanel">Induktionssimulation</button>
+        <button id="tab-transformer-simulation" role="tab" aria-selected="false"
+          aria-controls="transformerSimulationPanel" tabindex="-1">Transformator</button>
+      </nav>
+      <section id="inductionSimulationPanel" class="simulation-panel" role="tabpanel"
+        aria-labelledby="tab-induction-simulation">
       <nav class="learning-tabs" role="tablist" aria-label="Lernbereiche">
         <button id="tab-experiment" role="tab" aria-selected="true" aria-controls="experimentPanel">Versuch</button>
         <button id="tab-quiz" role="tab" aria-selected="false" aria-controls="quizPanel" tabindex="-1">Quiz</button>
@@ -355,6 +363,16 @@ document.querySelector('#app').innerHTML = `
       </div>
       <section id="quizPanel" class="card" role="tabpanel" aria-labelledby="tab-quiz" hidden></section>
       <section id="dataPanel" class="card" role="tabpanel" aria-labelledby="tab-data" hidden></section>
+      </section>
+      <section id="transformerSimulationPanel" class="simulation-panel" role="tabpanel"
+        aria-labelledby="tab-transformer-simulation" hidden>
+        <section class="card transformer-placeholder">
+          <p class="section-kicker">Neue Simulation</p>
+          <h2>Transformator</h2>
+          <p>Der Bereich für die Transformator-Simulation ist vorbereitet.
+            Versuchsaufbau, Einstellungen und Auswertungen werden im nächsten Schritt ergänzt.</p>
+        </section>
+      </section>
     </main>
     <footer class="site-footer">
       <a href="./rechtliches.html#impressum">Impressum</a>
@@ -1007,3 +1025,32 @@ mountLearning({
   onLeaveExperiment() { if (running) stopSimulation() },
   onReturnExperiment() { voltageChart.resize() }
 })
+
+function mountSimulationTabs() {
+  const tabs = [...document.querySelectorAll('.simulation-tabs [role="tab"]')]
+  const activate = tab => {
+    const inductionSelected = tab.id === 'tab-induction-simulation'
+    if (!inductionSelected && running) stopSimulation()
+    for (const item of tabs) {
+      const selected = item === tab
+      item.setAttribute('aria-selected', String(selected))
+      item.tabIndex = selected ? 0 : -1
+      document.getElementById(item.getAttribute('aria-controls')).hidden = !selected
+    }
+    if (inductionSelected) voltageChart.resize()
+  }
+  tabs.forEach((tab, index) => {
+    tab.addEventListener('click', () => activate(tab))
+    tab.addEventListener('keydown', event => {
+      const offset = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0
+      const next = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 :
+        offset ? (index + offset + tabs.length) % tabs.length : null
+      if (next === null) return
+      event.preventDefault()
+      tabs[next].focus()
+      activate(tabs[next])
+    })
+  })
+}
+
+mountSimulationTabs()

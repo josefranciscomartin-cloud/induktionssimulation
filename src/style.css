@@ -6,10 +6,37 @@
   display: none !important;
 }
 
-.tab-panel {
+.tab-panel,
+.simulation-panel {
   display: grid;
   gap: 20px;
   min-width: 0;
+}
+
+.simulation-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  padding: 6px;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  background: #e2e8f0;
+}
+
+.simulation-tabs button {
+  margin: 0;
+  padding: 14px 18px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #334155;
+  font-weight: bold;
+}
+
+.simulation-tabs [aria-selected="true"] {
+  background: #263238;
+  color: white;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 18%);
 }
 
 .learning-tabs {
@@ -194,6 +221,34 @@ body {
   padding: 24px;
   border-radius: 10px;
   box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
+}
+
+.transformer-placeholder {
+  min-height: 280px;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  border: 2px dashed #94a3b8;
+}
+
+.transformer-placeholder h2 {
+  margin: 4px 0 8px;
+}
+
+.transformer-placeholder p:last-child {
+  max-width: 620px;
+  margin: 0;
+  line-height: 1.6;
+  color: #475569;
+}
+
+.section-kicker {
+  margin: 0;
+  color: #3155d9;
+  font-size: 0.85rem;
+  font-weight: bold;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .coil-settings {
