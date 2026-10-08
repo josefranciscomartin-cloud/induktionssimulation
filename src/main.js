@@ -1,12 +1,14 @@
 import './style.css'
 import Chart from 'chart.js/auto'
 import { mountLearning } from './learning.js'
+import { mountTransformer } from './transformer.js'
+import { mountTransmission } from './transmission.js'
 
 document.querySelector('#app').innerHTML = `
   <div class="app">
     <header class="header">
       <h1>Induktionssimulation von J.M. und M.K.</h1>
-      <p>Simulation elektromagnetischer Induktion bei einer Feldspule und einer Induktionsspule</p>
+      <p id="simulationSubtitle">Simulation elektromagnetischer Induktion bei einer Feldspule und einer Induktionsspule</p>
     </header>
 
     <main class="main">
@@ -15,6 +17,8 @@ document.querySelector('#app').innerHTML = `
           aria-controls="inductionSimulationPanel">Induktionssimulation</button>
         <button id="tab-transformer-simulation" role="tab" aria-selected="false"
           aria-controls="transformerSimulationPanel" tabindex="-1">Transformator</button>
+        <button id="tab-transmission-simulation" role="tab" aria-selected="false"
+          aria-controls="transmissionSimulationPanel" tabindex="-1">Fernleitung</button>
       </nav>
       <section id="inductionSimulationPanel" class="simulation-panel" role="tabpanel"
         aria-labelledby="tab-induction-simulation">
@@ -366,12 +370,9 @@ document.querySelector('#app').innerHTML = `
       </section>
       <section id="transformerSimulationPanel" class="simulation-panel" role="tabpanel"
         aria-labelledby="tab-transformer-simulation" hidden>
-        <section class="card transformer-placeholder">
-          <p class="section-kicker">Neue Simulation</p>
-          <h2>Transformator</h2>
-          <p>Der Bereich für die Transformator-Simulation ist vorbereitet.
-            Versuchsaufbau, Einstellungen und Auswertungen werden im nächsten Schritt ergänzt.</p>
-        </section>
+      </section>
+      <section id="transmissionSimulationPanel" class="simulation-panel" role="tabpanel"
+        aria-labelledby="tab-transmission-simulation" hidden>
       </section>
     </main>
     <footer class="site-footer">
@@ -1026,11 +1027,21 @@ mountLearning({
   onReturnExperiment() { voltageChart.resize() }
 })
 
+const transformer = mountTransformer(document.querySelector('#transformerSimulationPanel'))
+const transmission = mountTransmission(document.querySelector('#transmissionSimulationPanel'))
+
 function mountSimulationTabs() {
   const tabs = [...document.querySelectorAll('.simulation-tabs [role="tab"]')]
   const activate = tab => {
     const inductionSelected = tab.id === 'tab-induction-simulation'
+    const transformerSelected = tab.id === 'tab-transformer-simulation'
+    document.querySelector('#simulationSubtitle').textContent = inductionSelected
+      ? 'Simulation elektromagnetischer Induktion bei einer Feldspule und einer Induktionsspule'
+      : transformerSelected ? 'Simulation eines Transformators mit Primärspule, Sekundärspule und Eisenkern'
+      : 'Elektrische Energieübertragung vom Kraftwerk über eine Fernleitung zum Haushalt'
     if (!inductionSelected && running) stopSimulation()
+    if (!transformerSelected) transformer.stop()
+    if (tab.id !== 'tab-transmission-simulation') transmission.stop()
     for (const item of tabs) {
       const selected = item === tab
       item.setAttribute('aria-selected', String(selected))
@@ -1038,6 +1049,8 @@ function mountSimulationTabs() {
       document.getElementById(item.getAttribute('aria-controls')).hidden = !selected
     }
     if (inductionSelected) voltageChart.resize()
+    else if (transformerSelected) transformer.resize()
+    else transmission.resize()
   }
   tabs.forEach((tab, index) => {
     tab.addEventListener('click', () => activate(tab))

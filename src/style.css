@@ -15,7 +15,7 @@
 
 .simulation-tabs {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 6px;
   padding: 6px;
   border: 1px solid #cbd5e1;
@@ -223,32 +223,85 @@ body {
   box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
 }
 
-.transformer-placeholder {
-  min-height: 280px;
-  display: grid;
-  place-content: center;
-  text-align: center;
-  border: 2px dashed #94a3b8;
+.transformer-svg-container { overflow-x: auto; }
+#transformerSvg {
+  display: block;
+  width: 100%;
+  min-width: 780px;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
 }
-
-.transformer-placeholder h2 {
-  margin: 4px 0 8px;
+.transformer-core { fill: #aebbc3; stroke: #334155; stroke-width: 2; }
+.transformer-primary-wire, .transformer-secondary-wire {
+  fill: none;
+  stroke: #dc2626;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
+.transformer-secondary-wire { stroke: #3155d9; }
+.transformer-primary-text { color: #dc2626; fill: #dc2626; }
+.transformer-secondary-text { color: #3155d9; fill: #3155d9; }
+.transformer-flux-text { fill: #166534; }
+.transformer-flux-line { fill: none; stroke: #12802c; stroke-linejoin: round; }
+.transformer-flux-arrow { fill: #12802c; }
+.transformer-current-particle { fill: #facc15; stroke: #854d0e; stroke-width: 1; }
+.transformer-source { fill: white; stroke: #dc2626; stroke-width: 3; }
+.transformer-source-wave { font-size: 44px; fill: #dc2626; }
+.transformer-load { fill: white; stroke: #3155d9; stroke-width: 3; }
+.transformer-secondary-terminal { fill: #3155d9; }
+.transformer-readings { display: flex; flex-wrap: wrap; gap: 8px 28px; }
+#transformerSimulationPanel p { line-height: 1.6; }
+.transformer-model-notes math { font-size: 1.4rem; overflow-x: auto; padding: 12px 0; }
+.transformer-chart { height: 430px; margin-top: 16px; }
 
-.transformer-placeholder p:last-child {
-  max-width: 620px;
-  margin: 0;
-  line-height: 1.6;
-  color: #475569;
-}
-
-.section-kicker {
-  margin: 0;
-  color: #3155d9;
-  font-size: 0.85rem;
-  font-weight: bold;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+.transmission-controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 24px; }
+.transmission-controls label { margin: 0; }
+.transmission-actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 16px; }
+.transmission-actions button { margin: 0; }
+.transmission-validation { color: #b91c1c; font-weight: bold; }
+.transmission-svg-container, .transmission-table-container { overflow-x: auto; }
+#transmissionSvg { display: block; width: 100%; min-width: 1100px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; }
+#transmissionSvg text { fill: #334155; }
+#transmissionSvg .transmission-heading { font-size: 21px; font-weight: bold; }
+#transmissionSvg .transmission-small { font-size: 18px; }
+#transmissionSvg .transmission-value { font-size: 21px; font-weight: bold; }
+.transmission-building { fill: #e2e8f0; stroke: #475569; stroke-width: 3; }
+.transmission-generator-ring { fill: white; stroke: #64748b; stroke-width: 3; }
+.transmission-rotor { fill: #3b82f6; stroke: #1e40af; stroke-width: 2; }
+.transmission-core { fill: #aebbc3; stroke: #334155; stroke-width: 2; }
+.transmission-local-wire, .transmission-high-wire { fill: none; stroke: #be123c; stroke-width: 5; stroke-linejoin: round; }
+.transmission-low-coil, .transmission-high-coil { fill: none; stroke: #3155d9; stroke-width: 4; }
+.transmission-high-coil { stroke-width: 2.5; }
+.transmission-flux { fill: none; stroke: #15803d; }
+.transmission-flux-arrow { fill: #15803d; }
+#transmissionSvg .transmission-flux-label { fill: #166534; font-size: 24px; font-weight: bold; }
+#transmissionSvg .transmission-direction { fill: #166534; font-size: 30px; }
+.transmission-electron { fill: #facc15; stroke: #854d0e; stroke-width: 1; }
+.transmission-heat-cloud { fill: url(#transmissionWarmth); stroke: none; }
+#transmissionSvg .transmission-heat-label { fill: #9a3412; font-size: 22px; font-weight: bold; }
+#transmissionSvg .transmission-current-label { font-size: 24px; font-weight: bold; }
+.transmission-house-roof, .transmission-house-door { fill: none; stroke: #475569; stroke-width: 5; stroke-linejoin: round; }
+.transmission-house-light { fill: #fbbf24; stroke: #a16207; stroke-width: 2; }
+.transmission-invalid { opacity: 0.35; }
+.transmission-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.transmission-metrics p { margin: 0; padding: 16px; background: #f1f5f9; border-radius: 10px; }
+.transmission-metrics strong { display: block; font-size: 1.5rem; margin-top: 8px; }
+.transmission-power-bar { display: flex; height: 28px; overflow: hidden; border-radius: 8px; background: #e2e8f0; margin-top: 20px; }
+.transmission-delivered-bar { background: #15803d; }
+.transmission-loss-bar { background: #f97316; }
+.transmission-bar-key { display: flex; flex-wrap: wrap; gap: 12px 28px; }
+.transmission-bar-key span:first-child { color: #166534; }
+.transmission-bar-key span:last-child { color: #9a3412; }
+.transmission-table { width: 100%; border-collapse: collapse; }
+.transmission-table th, .transmission-table td { text-align: left; border-bottom: 1px solid #cbd5e1; padding: 12px; }
+.transmission-table thead { background: #f1f5f9; }
+#transmissionSimulationPanel p { line-height: 1.6; }
+.transmission-notes math { font-size: 1.4rem; overflow-x: auto; padding: 12px 0; }
+@media (max-width: 700px) {
+  .transmission-controls, .transmission-metrics { grid-template-columns: 1fr; }
+  .simulation-tabs button { padding: 12px 6px; overflow-wrap: anywhere; }
 }
 
 .coil-settings {

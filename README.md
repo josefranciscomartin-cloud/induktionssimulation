@@ -11,6 +11,12 @@ Sinus-, Dreieck- und Rechteckstrom sowie einem Chart.js-Diagramm.
 | `src/main.js` | Oberfläche, SVG, Berechnungen und Diagramm |
 | `src/learning.js` | Lernreiter, Quiz, Messwerttabelle und Selbsttest |
 | `src/measurement-data.js` | Übungsdaten, Messstreuung, Einheitenprüfung und CSV-Export |
+| `src/transformer.js` | Transformator-Reiter, SVG-Animation, Einstellungen und Diagramm |
+| `src/transformer-model.js` | Spannungsübersetzung, magnetischer Fluss und Ströme im Transformator |
+| `test/transformer-model.test.js` | Physikalische Prüfungen des Transformator-Modells |
+| `src/transmission.js` | Fernleitungs-Reiter, Magnetfelder, Elektronenbewegung, Wärmewolken und Leistungsbilanz |
+| `src/transmission-model.js` | Strom, Spannungsabfall, Leitungsverluste und ankommende Leistung |
+| `test/transmission-model.test.js` | Prüfungen der Fernleitungs-Leistungsbilanz und Wechselstromdarstellung |
 | `src/style.css` | Gestaltung der Simulation |
 | `public/favicon.svg` | Seitensymbol |
 | `public/rechtliches.html` | Impressum und Datenschutzerklärung |
@@ -68,6 +74,60 @@ CSS und Favicon werden mit relativen Pfaden erzeugt. Dadurch kann der Inhalt von
 `dist/` in einen beliebigen Unterordner eines LMS kopiert und weiterhin unter
 `/induktionssimulation/` auf GitHub Pages bereitgestellt werden.
 Die Seite über HTTP aufrufen, nicht per Doppelklick über `file://`.
+
+## Transformator-Simulation
+
+Im Hauptreiter „Transformator“ lassen sich die Windungszahlen N₁ und N₂,
+die sinusförmige Primärspannung (Effektivwert), Frequenz und Lastwiderstand
+einstellen. Beim Wechsel der Hauptreiter wird die jeweils laufende Simulation
+angehalten. Start/Anhalten/Fortsetzen und Zurücksetzen wirken nur auf den
+Transformator; Änderungen seiner Parameter setzen dessen Zeit auf null zurück.
+
+Die SVG zeigt den Eisenkern und beide Spulen in einer flachen 2D-Vorderansicht
+mit fünf geschlossenen Flusslinien im Eisenkern. Deckkraft, Breite und
+Pfeilrichtung folgen dem magnetischen Fluss. Gelbe Markierungen schwingen gemäß
+der physikalischen Stromrichtung (Elektronenbewegung), entgegen der technischen
+Stromrichtung. Eine gezeichnete Windung entspricht etwa 20
+realen Windungen; bei beiden Spulen wird dieselbe Skala verwendet.
+
+Das Modell beschreibt einen idealen Transformator mit ohmscher Last im
+stationären Sinusbetrieb. Es gilt U₂/U₁ = N₂/N₁ und bei angeschlossener Last
+I₂/I₁ = N₁/N₂. Magnetisierungsstrom, Verluste, Sättigung, Streufluss und
+Einschaltvorgänge werden nicht modelliert. Bei offener Sekundärseite sind beide
+Ströme null; Spannung und magnetischer Fluss bleiben bestehen. Die fünf
+Diagrammkurven zeigen Primär- und Sekundärspannung, die beiden Ströme und den
+magnetischen Fluss; ein Zeitzeiger kennzeichnet den aktuellen Animationszustand.
+
+Modellprüfungen mit der vorgesehenen Node-Version ausführen:
+
+```bash
+node --test test/transformer-model.test.js
+```
+
+## Fernleitungs-Simulation
+
+Der Reiter „Fernleitung“ zeigt Kraftwerk, Hochtransformator, Hin- und Rückleitung,
+Heruntertransformator und Haushalt. Veränderbar sind Kraftwerksleistung,
+Leitungsspannung, gesamter Leitungswiderstand und Beobachtungsfrequenz.
+Die Vergleichsknöpfe halbieren oder verdoppeln die Leitungsspannung bei gleicher
+Kraftwerksleistung. „Auf Startwerte zurücksetzen“ hält die Simulation an, setzt
+die Zeit auf 0 und stellt 10 kW, 2 kV, 20 Ω und 0,4 Hz wieder her.
+Die Abspielgeschwindigkeit ist unabhängig von der Frequenz einstellbar
+(1×, ½×, ¼×, ⅒×). Standard und Startwert ist ¼×: Animation und Momentanwerte
+werden gemeinsam verlangsamt, während Modellwerte und Simulationszeit konsistent bleiben.
+Gelbe Punkte stellen Elektronenbewegung dar; grüne Flusslinien
+pulsieren und wechseln ihre Richtung. Orange Wärmewolken verbildlichen die
+mittleren Leitungsverluste, ohne echten Dampf zu behaupten. Tabelle und
+Leistungsbalken zeigen Effektivwerte und mittlere Leistungen.
+
+Das einphasige Modell hat ideale Transformatoren und eine für konstante
+Kraftwerksleistung angepasste ohmsche Haushaltslast: I = P/U, P_verlust = I²R
+und P_Haushalt = P_Kraftwerk − P_verlust. Hin- und Rückleitung werden gemeinsam
+gerechnet. Der Spannungsabfall senkt auch die Haushaltsspannung, da die zweite
+Übersetzung keine Spannungsregelung enthält. Ungültige Betriebspunkte mit
+vollständigem oder größerem Leistungsverlust werden abgefangen.
+
+Alle Modellprüfungen: `node --test test/*.test.js`.
 
 ## Auf GitHub Pages veröffentlichen
 
