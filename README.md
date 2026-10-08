@@ -17,6 +17,9 @@ Sinus-, Dreieck- und Rechteckstrom sowie einem Chart.js-Diagramm.
 | `src/transmission.js` | Fernleitungs-Reiter, Magnetfelder, Elektronenbewegung, Wärmewolken und Leistungsbilanz |
 | `src/transmission-model.js` | Strom, Spannungsabfall, Leitungsverluste und ankommende Leistung |
 | `test/transmission-model.test.js` | Prüfungen der Fernleitungs-Leistungsbilanz und Wechselstromdarstellung |
+| `src/lc-circuit.js` | Schwingkreis-Reiter, Schalter, elektrische und magnetische Felder, Energieanzeige und Diagramme |
+| `src/lc-model.js` | Ungedämpfte LC-Schwingung, Eigenfrequenz, Spannungen, Ladung, Strom und Energie |
+| `test/lc-model.test.js` | Prüfungen der LC-Energieerhaltung, Vorzeichen und Viertelperioden |
 | `src/style.css` | Gestaltung der Simulation |
 | `public/favicon.svg` | Seitensymbol |
 | `public/rechtliches.html` | Impressum und Datenschutzerklärung |
@@ -128,6 +131,44 @@ gerechnet. Der Spannungsabfall senkt auch die Haushaltsspannung, da die zweite
 vollständigem oder größerem Leistungsverlust werden abgefangen.
 
 Alle Modellprüfungen: `node --test test/*.test.js`.
+
+## LC-Schwingkreis
+
+Der Reiter „Schwingkreis“ beginnt mit einem ungeladenen Kondensator. „Kondensator
+laden“ bereitet idealisiert die volle Anfangsladung bei Stromstärke null vor;
+der zeitliche Ladevorgang wird nicht simuliert. Nach dem Umschalten sind Quelle
+und Ladewiderstand vom freien LC-Kreis getrennt. Einstellbar sind L in mH,
+C in µF, Ladespannung und eine physikalisch unabhängige Zeitlupe (200- bis 1600-fach).
+Startwerte: 100 mH, 100 µF, 6 V, 400-fache Zeitlupe. Änderungen von L, C oder U₀
+setzen den Kreis in den ungeladenen Zustand zurück.
+
+Orange Pfeile zeigen das elektrische Feld und Plattenzeichen die wechselnde
+Polarität. Grüne geschlossene Linien zeigen das Magnetfeld der Spule. Blaue
+Punkte bewegen sich entgegen der technischen Stromrichtung und überqueren
+den Kondensatorspalt nicht. Die Feldstärken werden relativ zum Maximum der
+aktuellen Einstellungen dargestellt. Zwei Energiebalken zeigen den Austausch
+zwischen ½CuC² und ½Li² bei konstanter Gesamtenergie. Zwei Diagramme zeigen
+Spannungen und Strom auf gemeinsamer physikalischer Zeitachse in Millisekunden.
+Zahlen werden alle 0,5 echten Sekunden aktualisiert; Anhalten und Viertelperioden-
+Schritte zeigen exakte Zustände. Beim Wechseln des Reiters wird die Schwingung angehalten.
+
+Das Modell verwendet T = 2π√(LC), uC = U₀ cos(ωt), i = U₀√(C/L) sin(ωt),
+uL = −uC mit den in der Zeichnung markierten Bezugsrichtungen. Ohne Widerstand,
+Strahlung oder Messgerätebelastung ist die Schwingung ungedämpft.
+
+Ein violetter Pfeil an der Spule zeigt zusätzlich die Wirkung der
+Selbstinduktionsspannung Uind = −L di/dt auf positive Ladungen. Polarität,
+Pfeilstärke und Erklärung folgen der Stromänderung. Die Anzeige unterscheidet
+das Hemmen eines Stromanstiegs vom Aufrechterhalten eines abnehmenden Stroms.
+Bei Stromextrema verschwindet der Pfeil, bei Stromnulldurchgängen ist er maximal.
+In der Ladestellung und vor dem Laden ist keine Selbstinduktionsspannung dargestellt.
+
+Das Stromdiagramm vergleicht zusätzlich den gezeichneten Kreis (L) mit einem
+Referenzkreis (L/4) bei gleichem C und U₀. Beide verwenden dieselben Achsen und
+einen gemeinsamen Strommaßstab, der beim Ausblenden einer Kurve erhalten bleibt.
+Kurze punktierte Anfangstangenten und Zahlenwerte zeigen di/dt = U₀/L:
+Der Referenzkreis hat die vierfache Anfangssteigung und die halbe Periodendauer.
+Die Referenz beeinflusst weder die Zeichnung noch die Energieanzeige.
 
 ## Auf GitHub Pages veröffentlichen
 

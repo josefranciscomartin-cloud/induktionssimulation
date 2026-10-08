@@ -3,6 +3,7 @@ import Chart from 'chart.js/auto'
 import { mountLearning } from './learning.js'
 import { mountTransformer } from './transformer.js'
 import { mountTransmission } from './transmission.js'
+import { mountLcCircuit } from './lc-circuit.js'
 
 document.querySelector('#app').innerHTML = `
   <div class="app">
@@ -19,6 +20,8 @@ document.querySelector('#app').innerHTML = `
           aria-controls="transformerSimulationPanel" tabindex="-1">Transformator</button>
         <button id="tab-transmission-simulation" role="tab" aria-selected="false"
           aria-controls="transmissionSimulationPanel" tabindex="-1">Fernleitung</button>
+        <button id="tab-lc-simulation" role="tab" aria-selected="false"
+          aria-controls="lcSimulationPanel" tabindex="-1">Schwingkreis</button>
       </nav>
       <section id="inductionSimulationPanel" class="simulation-panel" role="tabpanel"
         aria-labelledby="tab-induction-simulation">
@@ -373,6 +376,9 @@ document.querySelector('#app').innerHTML = `
       </section>
       <section id="transmissionSimulationPanel" class="simulation-panel" role="tabpanel"
         aria-labelledby="tab-transmission-simulation" hidden>
+      </section>
+      <section id="lcSimulationPanel" class="simulation-panel" role="tabpanel"
+        aria-labelledby="tab-lc-simulation" hidden>
       </section>
     </main>
     <footer class="site-footer">
@@ -1029,6 +1035,7 @@ mountLearning({
 
 const transformer = mountTransformer(document.querySelector('#transformerSimulationPanel'))
 const transmission = mountTransmission(document.querySelector('#transmissionSimulationPanel'))
+const lcCircuit = mountLcCircuit(document.querySelector('#lcSimulationPanel'))
 
 function mountSimulationTabs() {
   const tabs = [...document.querySelectorAll('.simulation-tabs [role="tab"]')]
@@ -1038,10 +1045,12 @@ function mountSimulationTabs() {
     document.querySelector('#simulationSubtitle').textContent = inductionSelected
       ? 'Simulation elektromagnetischer Induktion bei einer Feldspule und einer Induktionsspule'
       : transformerSelected ? 'Simulation eines Transformators mit Primärspule, Sekundärspule und Eisenkern'
-      : 'Elektrische Energieübertragung vom Kraftwerk über eine Fernleitung zum Haushalt'
+      : tab.id === 'tab-transmission-simulation' ? 'Elektrische Energieübertragung vom Kraftwerk über eine Fernleitung zum Haushalt'
+      : 'Der ungedämpfte elektromagnetische Schwingkreis mit Kondensator und Spule'
     if (!inductionSelected && running) stopSimulation()
     if (!transformerSelected) transformer.stop()
     if (tab.id !== 'tab-transmission-simulation') transmission.stop()
+    if (tab.id !== 'tab-lc-simulation') lcCircuit.stop()
     for (const item of tabs) {
       const selected = item === tab
       item.setAttribute('aria-selected', String(selected))
@@ -1050,7 +1059,8 @@ function mountSimulationTabs() {
     }
     if (inductionSelected) voltageChart.resize()
     else if (transformerSelected) transformer.resize()
-    else transmission.resize()
+    else if (tab.id === 'tab-transmission-simulation') transmission.resize()
+    else lcCircuit.resize()
   }
   tabs.forEach((tab, index) => {
     tab.addEventListener('click', () => activate(tab))

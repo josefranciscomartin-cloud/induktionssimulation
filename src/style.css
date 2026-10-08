@@ -15,7 +15,7 @@
 
 .simulation-tabs {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 6px;
   padding: 6px;
   border: 1px solid #cbd5e1;
@@ -299,8 +299,56 @@ body {
 .transmission-table thead { background: #f1f5f9; }
 #transmissionSimulationPanel p { line-height: 1.6; }
 .transmission-notes math { font-size: 1.4rem; overflow-x: auto; padding: 12px 0; }
+.lc-controls, .lc-energy-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 24px; }
+.lc-controls label { margin: 0; }
+.lc-actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 16px; }
+.lc-actions button { margin: 0; }
+.lc-validation { color: #b91c1c; font-weight: bold; }
+.lc-svg-container { overflow-x: auto; }
+#lcSvg { display: block; width: 100%; min-width: 850px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; }
+.lc-wire, .lc-switch { fill: none; stroke: #475569; stroke-width: 4; stroke-linejoin: round; }
+.lc-switch { stroke: #0f172a; stroke-width: 5; }
+.lc-source, .lc-meter, .lc-resistor { fill: white; stroke: #475569; stroke-width: 3; }
+.lc-source-sign { fill: #dc2626; font-size: 40px; }
+.lc-contact { fill: #0f172a; }
+.lc-coil { fill: none; stroke: #2563eb; stroke-width: 4; }
+.lc-capacitor { fill: none; stroke: #334155; stroke-width: 6; stroke-linecap: round; }
+.lc-meter-wire { fill: none; stroke: #94a3b8; stroke-width: 2; }
+.lc-label { font-size: 25px; fill: #334155; }
+.lc-small { font-size: 19px; fill: #475569; }
+.lc-value { font-size: 24px; font-weight: bold; fill: #334155; }
+.lc-electric-label { fill: #c2410c; font-size: 19px; font-weight: bold; }
+.lc-magnetic-label { fill: #166534; font-size: 21px; font-weight: bold; }
+.lc-induction-label { fill: #7e22ce; font-size: 21px; font-weight: bold; }
+.lc-induction-arrow { fill: none; stroke: #9333ea; stroke-linecap: round; stroke-linejoin: round; }
+.lc-induction-polarity { fill: #7e22ce; font-size: 28px; font-weight: bold; }
+.lc-induction-info { border-left: 4px solid #9333ea; background: #faf5ff; padding: 8px 18px; margin-top: 16px; }
+.lc-electric-arrow { fill: none; stroke: #ea580c; stroke-linecap: round; stroke-linejoin: round; }
+.lc-magnetic-line { fill: none; stroke: #15803d; }
+.lc-magnetic-arrow { fill: #15803d; }
+.lc-electron { fill: #3b82f6; stroke: #1e40af; stroke-width: 1; }
+.lc-charge-symbol { font-size: 23px; font-weight: bold; }
+.lc-polarity { font-size: 31px; font-weight: bold; fill: #334155; }
+.lc-invalid { opacity: 0.3; }
+.lc-state, .lc-phase-hint { padding: 12px 16px; border-radius: 8px; background: #f1f5f9; }
+.lc-energy-box { background: #f8fafc; border: 1px solid #cbd5e1; padding: 16px; border-radius: 10px; }
+.lc-energy-box h3 { margin-top: 0; }
+.lc-energy-box strong { font-size: 1.5rem; }
+.lc-energy-track { height: 25px; border-radius: 6px; overflow: hidden; background: #e2e8f0; margin-top: 12px; }
+.lc-energy-track > div { height: 100%; }
+.lc-electric-bar { background: #ea580c; }
+.lc-magnetic-bar { background: #15803d; }
+.lc-properties { display: flex; flex-wrap: wrap; gap: 8px 28px; }
+.lc-notes math { font-size: 1.4rem; overflow-x: auto; padding: 12px 0; }
+#lcSimulationPanel p, #lcSimulationPanel li { line-height: 1.6; }
+.lc-chart { margin-top: 12px; }
+.lc-comparison-slopes { display: flex; flex-wrap: wrap; gap: 8px 28px; }
+.lc-main-slope { color: #1d4ed8; }
+.lc-reference-slope { color: #92400e; }
 @media (max-width: 700px) {
   .transmission-controls, .transmission-metrics { grid-template-columns: 1fr; }
+  .lc-controls, .lc-energy-grid { grid-template-columns: 1fr; }
+  .simulation-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .simulation-tabs button { padding: 12px 6px; overflow-wrap: anywhere; }
 }
 
