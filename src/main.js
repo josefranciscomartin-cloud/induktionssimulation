@@ -4,6 +4,7 @@ import { mountLearning } from './learning.js'
 import { mountTransformer } from './transformer.js'
 import { mountTransmission } from './transmission.js'
 import { mountLcCircuit } from './lc-circuit.js'
+import { mountThomson } from './thomson.js'
 
 document.querySelector('#app').innerHTML = `
   <div class="app">
@@ -22,6 +23,8 @@ document.querySelector('#app').innerHTML = `
           aria-controls="transmissionSimulationPanel" tabindex="-1">Fernleitung</button>
         <button id="tab-lc-simulation" role="tab" aria-selected="false"
           aria-controls="lcSimulationPanel" tabindex="-1">Schwingkreis</button>
+        <button id="tab-thomson-simulation" role="tab" aria-selected="false"
+          aria-controls="thomsonSimulationPanel" tabindex="-1">Ringversuch</button>
       </nav>
       <section id="inductionSimulationPanel" class="simulation-panel" role="tabpanel"
         aria-labelledby="tab-induction-simulation">
@@ -379,6 +382,9 @@ document.querySelector('#app').innerHTML = `
       </section>
       <section id="lcSimulationPanel" class="simulation-panel" role="tabpanel"
         aria-labelledby="tab-lc-simulation" hidden>
+      </section>
+      <section id="thomsonSimulationPanel" class="simulation-panel" role="tabpanel"
+        aria-labelledby="tab-thomson-simulation" hidden>
       </section>
     </main>
     <footer class="site-footer">
@@ -1036,6 +1042,7 @@ mountLearning({
 const transformer = mountTransformer(document.querySelector('#transformerSimulationPanel'))
 const transmission = mountTransmission(document.querySelector('#transmissionSimulationPanel'))
 const lcCircuit = mountLcCircuit(document.querySelector('#lcSimulationPanel'))
+const thomson = mountThomson(document.querySelector('#thomsonSimulationPanel'))
 
 function mountSimulationTabs() {
   const tabs = [...document.querySelectorAll('.simulation-tabs [role="tab"]')]
@@ -1046,11 +1053,13 @@ function mountSimulationTabs() {
       ? 'Simulation elektromagnetischer Induktion bei einer Feldspule und einer Induktionsspule'
       : transformerSelected ? 'Simulation eines Transformators mit Primärspule, Sekundärspule und Eisenkern'
       : tab.id === 'tab-transmission-simulation' ? 'Elektrische Energieübertragung vom Kraftwerk über eine Fernleitung zum Haushalt'
-      : 'Der ungedämpfte elektromagnetische Schwingkreis mit Kondensator und Spule'
+      : tab.id === 'tab-lc-simulation' ? 'Der ungedämpfte elektromagnetische Schwingkreis mit Kondensator und Spule'
+      : 'Thomsonscher Ringversuch: Induktion, Magnetfelder und Bewegung eines Aluminiumrings'
     if (!inductionSelected && running) stopSimulation()
     if (!transformerSelected) transformer.stop()
     if (tab.id !== 'tab-transmission-simulation') transmission.stop()
     if (tab.id !== 'tab-lc-simulation') lcCircuit.stop()
+    if (tab.id !== 'tab-thomson-simulation') thomson.stop()
     for (const item of tabs) {
       const selected = item === tab
       item.setAttribute('aria-selected', String(selected))
@@ -1060,7 +1069,8 @@ function mountSimulationTabs() {
     if (inductionSelected) voltageChart.resize()
     else if (transformerSelected) transformer.resize()
     else if (tab.id === 'tab-transmission-simulation') transmission.resize()
-    else lcCircuit.resize()
+    else if (tab.id === 'tab-lc-simulation') lcCircuit.resize()
+    else thomson.resize()
   }
   tabs.forEach((tab, index) => {
     tab.addEventListener('click', () => activate(tab))

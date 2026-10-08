@@ -20,6 +20,9 @@ Sinus-, Dreieck- und Rechteckstrom sowie einem Chart.js-Diagramm.
 | `src/lc-circuit.js` | Schwingkreis-Reiter, Schalter, elektrische und magnetische Felder, Energieanzeige und Diagramme |
 | `src/lc-model.js` | Ungedämpfte LC-Schwingung, Eigenfrequenz, Spannungen, Ladung, Strom und Energie |
 | `test/lc-model.test.js` | Prüfungen der LC-Energieerhaltung, Vorzeichen und Viertelperioden |
+| `src/thomson.js` | Ringversuch-Reiter, Magnetfelder, Ringbewegung, Kraftanzeigen und Diagramme |
+| `src/thomson-model.js` | Gekoppelte RL-Ringgleichung und vertikale Bewegung mit höhenabhängiger Kopplung |
+| `test/thomson-model.test.js` | Prüfungen von Auftrieb, Schlitz, Phasenverschiebung, Abschalten und Integration |
 | `src/style.css` | Gestaltung der Simulation |
 | `public/favicon.svg` | Seitensymbol |
 | `public/rechtliches.html` | Impressum und Datenschutzerklärung |
@@ -169,6 +172,46 @@ einen gemeinsamen Strommaßstab, der beim Ausblenden einer Kurve erhalten bleibt
 Kurze punktierte Anfangstangenten und Zahlenwerte zeigen di/dt = U₀/L:
 Der Referenzkreis hat die vierfache Anfangssteigung und die halbe Periodendauer.
 Die Referenz beeinflusst weder die Zeichnung noch die Energieanzeige.
+
+## Thomsonscher Ringversuch
+
+Der Reiter „Ringversuch“ zeigt einen Aluminiumring über einer Spule auf einem
+Stahlstab und L-förmigem Eisenkern. Einstellbar sind geregelter Spulenstrom
+(Effektivwert), Windungszahl, Frequenz, Ringmasse, Ringwiderstand und Ringinduktivität.
+Startwerte: 4 A, 300 Windungen, 50 Hz, 10 g, 1 mΩ, 20 µH. Geschlossener und
+geschlitzter Ring lassen sich vergleichen; Festhalten zeigt Kräfte bei fester Höhe.
+Zwei Betriebsarten sind wählbar: Dauerbetrieb mit Ausschwingen zur Schwebehöhe
+und ein kurzer Wechselstromimpuls (20–200 ms, Startwert 80 ms). Der Impuls startet
+mit dem Ring auf der Auflage, schaltet automatisch ab und lässt den Ring anschließend
+weitersteigen und zurückfallen. Jeder neue Impuls beginnt wieder unten.
+Die Zeitlupe verlangsamt Elektrik und Bewegung gemeinsam (10-, 50-, 100- oder 200-fach).
+10-fache Zeitlupe eignet sich für das Ausschwingen, 100-fache für Feldrichtungen.
+Schalten startet auch die Animation, damit Ausschalten den Abbau der Felder und
+das Zurückfallen zeigt. Pause, Viertelperioden-Schritt und vollständiges Rücksetzen
+sind zusätzlich vorhanden. Beim Wechsel des Reiters wird die Animation angehalten.
+
+Das numerisch integrierte Modell verwendet M(z) = M₀ exp(−z/0,08 m), M₀ = 200 µH
+bei 300 Windungen, Uind = −d(Mi₁)/dt, L₂ di₂/dt + R₂i₂ = Uind und
+Fmag = i₁i₂ dM/dz. Der Ring bewegt sich durch Magnetkraft, Gewicht und Luftwiderstand;
+die Auflage ist ein unelastischer Anschlag. Eine geglättete Einschalthüllkurve
+verhindert einen idealen Stromsprung. RK4 mit begrenzten inneren Zeitschritten
+berücksichtigt auch den bewegungsbedingten Anteil der Induktionsspannung.
+Der Ringstrom besitzt eine induktive Phasenverschiebung: Die Kraft ist nicht
+ständig abstoßend, besitzt aber im stationären Betrieb einen positiven Mittelwert.
+
+Grüne und violette Feldlinien zeigen getrennt Spulen- und Ringfeldbeitrag;
+der tatsächliche Feldwert ist deren Überlagerung. Blaue Punkte zeigen die
+Elektronenbewegung, zusätzlich vergrößert in einer Ansicht des Rings von oben.
+Ein hervorgehobenes Elektron macht den Umlauf und seine Richtungswechsel erkennbar.
+Die Driftbewegung ist stark überzeichnet; bei Wechselstrom kehrt sie regelmäßig um.
+Große Pfeile auf inneren und äußeren Feldlinien sowie ⊙/⊗ in der Draufsicht
+zeigen die Richtung des Ringfeldes. Die Kraftanzeige enthält die momentane Kraft und ein
+Trapezmittel über die letzte vollständige Periode. Vier Diagramme zeigen
+Spulenstrom, Ringstrom, Induktionsspannung und Kräfte auf gemeinsamer Zeitachse.
+Ringstrom und Ringfeld verschwinden beim Schlitz, die Induktionsspannung bleibt.
+Die Quelle ist ideal stromgeregelt, die Geometrie nicht gerätespezifisch kalibriert.
+Die Rückwirkung wird durch die Stromregelung ausgeglichen; eine temperaturabhängige
+Änderung des Ringwiderstands, Sättigung und seitliches Kippen werden nicht simuliert.
 
 ## Auf GitHub Pages veröffentlichen
 

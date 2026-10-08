@@ -15,7 +15,7 @@
 
 .simulation-tabs {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 6px;
   padding: 6px;
   border: 1px solid #cbd5e1;
@@ -345,9 +345,55 @@ body {
 .lc-comparison-slopes { display: flex; flex-wrap: wrap; gap: 8px 28px; }
 .lc-main-slope { color: #1d4ed8; }
 .lc-reference-slope { color: #92400e; }
+.thomson-controls, .thomson-charts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 24px; }
+.thomson-controls label { margin: 0; }
+.thomson-charts > div { min-width: 0; }
+.thomson-actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 16px; }
+.thomson-actions button { margin: 0; }
+.thomson-validation { color: #b91c1c; font-weight: bold; }
+.thomson-svg-container { overflow-x: auto; }
+#thomsonSvg { display: block; width: 100%; min-width: 850px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; }
+.thomson-source-box { fill: #e2e8f0; stroke: #64748b; stroke-width: 2; }
+.thomson-core { fill: #64748b; stroke: #334155; stroke-width: 2; }
+.thomson-guide { fill: #cbd5e1; stroke: #64748b; stroke-width: 2; }
+.thomson-wire { fill: none; stroke: #475569; stroke-width: 4; stroke-linejoin: round; }
+.thomson-coil-body { fill: #ffedd5; stroke: #b45309; stroke-width: 2; }
+#thomsonCoilTurns { fill: none; stroke: #ea580c; stroke-width: 3; }
+.thomson-coil-cap { fill: none; stroke: #78350f; stroke-width: 5; }
+.thomson-coil-field { fill: none; stroke: #15803d; }
+.thomson-coil-arrow { fill: #15803d; }
+.thomson-ring-field { fill: none; stroke: #9333ea; stroke-dasharray: 6 3; }
+.thomson-ring-arrow { fill: #7e22ce; stroke: white; stroke-width: 1.5; paint-order: stroke fill; }
+.thomson-ring-direction { fill: #7e22ce; font-size: 35px; font-weight: bold; }
+.thomson-ring { fill: #cbd5e1; stroke: #475569; stroke-width: 2; }
+.thomson-slit { fill: none; stroke: #f8fafc; stroke-width: 9; }
+.thomson-electron { fill: #3b82f6; stroke: #1e40af; stroke-width: 1; }
+.thomson-electron-highlight { fill: #1d4ed8; stroke: white; stroke-width: 2.5; }
+.thomson-label { font-size: 24px; fill: #334155; }
+.thomson-small { font-size: 19px; fill: #475569; }
+.thomson-label-line { fill: none; stroke: #64748b; stroke-width: 2; }
+.thomson-field-key { font-size: 18px; font-weight: bold; }
+.thomson-coil-key { fill: #166534; }
+.thomson-ring-key { fill: #7e22ce; }
+.thomson-electron-key { fill: #1d4ed8; }
+.thomson-source { fill: white; stroke: #475569; stroke-width: 3; }
+.thomson-source-wave { fill: #334155; font-size: 47px; }
+.thomson-magnetic-arrow { fill: none; stroke: #2563eb; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+.thomson-gravity-arrow { fill: none; stroke: #c2410c; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+.thomson-force-label { fill: #1d4ed8; font-size: 19px; font-weight: bold; }
+.thomson-gravity-label { fill: #9a3412; font-size: 19px; font-weight: bold; }
+.thomson-invalid { opacity: 0.3; }
+.thomson-status { padding: 12px 16px; border-radius: 8px; background: #f1f5f9; }
+.thomson-readings { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
+.thomson-readings p { margin: 0; padding: 14px 16px; border-radius: 8px; background: #f8fafc; border: 1px solid #cbd5e1; }
+.thomson-readings strong { display: block; margin-top: 7px; font-size: 1.35rem; }
+.chart-container.thomson-chart { height: 300px; }
+.thomson-notes math { font-size: 1.4rem; overflow-x: auto; padding: 12px 0; }
+#thomsonSimulationPanel p { line-height: 1.6; }
 @media (max-width: 700px) {
   .transmission-controls, .transmission-metrics { grid-template-columns: 1fr; }
   .lc-controls, .lc-energy-grid { grid-template-columns: 1fr; }
+  .thomson-controls, .thomson-readings, .thomson-charts { grid-template-columns: 1fr; }
   .simulation-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .simulation-tabs button { padding: 12px 6px; overflow-wrap: anywhere; }
 }
